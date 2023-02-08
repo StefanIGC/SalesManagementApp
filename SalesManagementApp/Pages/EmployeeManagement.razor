@@ -13,40 +13,53 @@
     <SfGrid DataSource="employeeData">
         <GridEditSettings AllowEditing="true"></GridEditSettings>
         <GridColumns>
-            <GridColumn IsPrimaryKey ="true" Field="@nameof(EmployeeModel.Id)" Width="50px"></GridColumn>
-            <GridColumn HeaderText="FirstName" Field="@nameof(EmployeeModel.FirstName)"></GridColumn>
-            <GridColumn HeaderText="LastName" Field="@nameof(EmployeeModel.LastName)"></GridColumn>
-            <GridForeignColumn HeaderText="Designation" TValue="EmployeeJobTitle" 
-                Field="@nameof(EmployeeModel.EmployeeJobTitleId)"
-                ForeignDataSource="employeeJobTitleData"
-                ForeignKeyValue="Name" Width="100px">
+            <GridColumn AllowAdding="false" IsPrimaryKey = "true" Field="@nameof(EmployeeModel.Id)" Width="50px"></GridColumn>
+	        <GridColumn HeaderText="First Name" Field="@nameof(EmployeeModel.FirstName)" Width="120px"></GridColumn>
+	        <GridColumn HeaderText="Last Name" Field="@nameof(EmployeeModel.LastName)" Width="120px"></GridColumn>
+			
+	        <GridForeignColumn HeaderText="Designation" TValue="EmployeeJobTitle" 
+	                           Field="@nameof(EmployeeModel.EmployeeJobTitleId)"
+	                           ForeignDataSource="employeeJobTitleData"
+	                           ForeignKeyValue="Name" Width="100px">
 
-                <EditTemplate>
-                    <SfDropDownList @bind-value ="@((context as EmployeeModel).EmployeeJobTitleId)" 
-                                        ID="EmployeeJobTitleId"
-                    DataSource="employeeJobTitleData" TItem="EmployeeJobTitle"
-                    TValue="int">
+		        <EditTemplate>
+			        <SfDropDownList @bind-value="@((context as EmployeeModel).EmployeeJobTitleId)" 
+			                        ID="EmployeeJobTitleId"
+			                        DataSource="employeeJobTitleData" TItem="EmployeeJobTitle"
+			                        TValue="int">
 
-                    <DropDownListFieldSettings Text="Name" Value="EmployeeJobTitleId">
+				        <DropDownListFieldSettings Text="Name" Value="EmployeeJobTitleId">
+				        </DropDownListFieldSettings>
 
-                    </DropDownListFieldSettings>
-
-                    </SfDropDownList>
-                </EditTemplate>
-
-            </GridForeignColumn>
+			        </SfDropDownList>
+		        </EditTemplate>
+	        </GridForeignColumn>
+			
             <GridColumn Field="@nameof(EmployeeModel.Gender)" Width="100px">
                 <EditTemplate>
                     <SfDropDownList DataSource="genderCollection" TItem ="string" TValue="string"
-                        @bind-Value = "@((context as EmployeeModel).Gender)">
-
-
+                        @bind-value="@((context as EmployeeModel).Gender)">
                     </SfDropDownList>
-
                 </EditTemplate>
             </GridColumn>
             <GridColumn HeaderText="DOB" Field="@nameof(EmployeeModel.DateOfBirth)" Format="d"></GridColumn>
-            <GridColumn HeaderText="Reports" Field="@nameof(EmployeeModel.ReportToEmpId)" Width="100px"></GridColumn>
+            
+			<GridForeignColumn HeaderText="Reports To" TValue="ReportToModel" 
+					Field="@nameof(EmployeeModel.ReportToEmpId)"
+					ForeignDataSource="reportToEmployeeData"
+					ForeignKeyValue="ReportToName" Width="130px">
+				<EditTemplate>
+					<SfDropDownList @bind-value="@((context as EmployeeModel).ReportToEmpId)" 
+		                     ID="ReportToEmpId"
+		                     DataSource="reportToEmployeeData" TItem="ReportToModel"
+		                     TValue="Nullable<int>">
+						<DropDownListFieldSettings Text="ReportToName" Value="ReportToEmpId">
+						</DropDownListFieldSettings>
+
+					</SfDropDownList>       
+				</EditTemplate>
+			</GridForeignColumn>
+            
         </GridColumns>
     </SfGrid>
 </div>
@@ -56,17 +69,20 @@
     {
         Male,
         Female,
+        Other
     }
 
     private string[] genderCollection = Enum.GetNames(typeof(GenderVal));
 
     private List<EmployeeModel>? employeeData = null;
     private List<EmployeeJobTitle>? employeeJobTitleData;
+	private List<ReportToModel>? reportToEmployeeData;
     // private List<object> toolbar = new List<object> { "Add", "Edit", "Delete", "Update", "Cancel", "Search" };
 
     protected override async Task OnInitializedAsync()
     {
         employeeData = await EmployeeManagementService.GetEmployees();
         employeeJobTitleData = await EmployeeManagementService.GetJobTitles();
-    }
+		reportToEmployeeData = await EmployeeManagementService.GetReportToEmployees();
+	}
 }

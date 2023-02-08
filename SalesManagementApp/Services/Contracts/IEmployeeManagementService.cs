@@ -7,5 +7,7 @@ namespace SalesManagementApp.Services.Contracts
     {
         Task<List<EmployeeModel>> GetEmployees();
         Task<List<EmployeeJobTitle>> GetJobTitles();
+        Task<List<ReportToModel>> GetReportToEmployees();
+
     }
 }
