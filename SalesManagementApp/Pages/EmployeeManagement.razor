@@ -1,0 +1,72 @@
+﻿@page "/EmployeeManagement"
+@using SalesManagementApp.Entities;
+@using SalesManagementApp.Models;
+@using SalesManagementApp.Services.Contracts;
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Grids
+
+@inject IEmployeeManagementService EmployeeManagementService
+
+<h3>EmployeeManagement</h3>
+
+<div style="max-width:900px">
+    <SfGrid DataSource="employeeData">
+        <GridEditSettings AllowEditing="true"></GridEditSettings>
+        <GridColumns>
+            <GridColumn IsPrimaryKey ="true" Field="@nameof(EmployeeModel.Id)" Width="50px"></GridColumn>
+            <GridColumn HeaderText="FirstName" Field="@nameof(EmployeeModel.FirstName)"></GridColumn>
+            <GridColumn HeaderText="LastName" Field="@nameof(EmployeeModel.LastName)"></GridColumn>
+            <GridForeignColumn HeaderText="Designation" TValue="EmployeeJobTitle" 
+                Field="@nameof(EmployeeModel.EmployeeJobTitleId)"
+                ForeignDataSource="employeeJobTitleData"
+                ForeignKeyValue="Name" Width="100px">
+
+                <EditTemplate>
+                    <SfDropDownList @bind-value ="@((context as EmployeeModel).EmployeeJobTitleId)" 
+                                        ID="EmployeeJobTitleId"
+                    DataSource="employeeJobTitleData" TItem="EmployeeJobTitle"
+                    TValue="int">
+
+                    <DropDownListFieldSettings Text="Name" Value="EmployeeJobTitleId">
+
+                    </DropDownListFieldSettings>
+
+                    </SfDropDownList>
+                </EditTemplate>
+
+            </GridForeignColumn>
+            <GridColumn Field="@nameof(EmployeeModel.Gender)" Width="100px">
+                <EditTemplate>
+                    <SfDropDownList DataSource="genderCollection" TItem ="string" TValue="string"
+                        @bind-Value = "@((context as EmployeeModel).Gender)">
+
+
+                    </SfDropDownList>
+
+                </EditTemplate>
+            </GridColumn>
+            <GridColumn HeaderText="DOB" Field="@nameof(EmployeeModel.DateOfBirth)" Format="d"></GridColumn>
+            <GridColumn HeaderText="Reports" Field="@nameof(EmployeeModel.ReportToEmpId)" Width="100px"></GridColumn>
+        </GridColumns>
+    </SfGrid>
+</div>
+
+@code {
+    private enum GenderVal
+    {
+        Male,
+        Female,
+    }
+
+    private string[] genderCollection = Enum.GetNames(typeof(GenderVal));
+
+    private List<EmployeeModel>? employeeData = null;
+    private List<EmployeeJobTitle>? employeeJobTitleData;
+    // private List<object> toolbar = new List<object> { "Add", "Edit", "Delete", "Update", "Cancel", "Search" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        employeeData = await EmployeeManagementService.GetEmployees();
+        employeeJobTitleData = await EmployeeManagementService.GetJobTitles();
+    }
+}
